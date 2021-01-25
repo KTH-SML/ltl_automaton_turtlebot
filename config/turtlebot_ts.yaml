@@ -1,0 +1,344 @@
+# TS definitions are to be interpreted by the agent node. The LTL core planner only uses the node names, connections, weights, and action names to build its automaton.
+#
+# Possible TS types:
+#   3d_pose_region (3D pose [[x,y,z], [x,y,z,w]] with quaternion orientation)
+#   2d_pose_region (2D pose [[x,y], phi] with euler angle orientation)
+#   3d_point_region (3D point [x, y, z] without orientation)
+#   2d_point_region (2D point [x, y] without orientation)
+#   turtlebot_load
+
+state_dim: ["2d_pose_region", "turtlebot_load"]
+state_models:
+    2d_pose_region:
+        ts_type: "2d_pose_region"
+        initial: "r36"
+        nodes: 
+            r19:
+                attr:
+                    type: "square"
+                    pose: [[0,0], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r20: "goto_r20" 
+                    r22: "goto_r22"
+            r20:
+                attr:
+                    type: "square"
+                    pose: [[1,0], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r19: "goto_r19" 
+                    r21: "goto_r21"
+                    r23: "goto_r23"
+            r21:
+                attr:
+                    type: "square"
+                    pose: [[2,0], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r20: "goto_r20" 
+                    r24: "goto_r24"
+            r22:
+                attr:
+                    type: "square"
+                    pose: [[0,1], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r19: "goto_r19" 
+                    r23: "goto_r23"
+                    r25: "goto_r25"
+            r23:
+                attr:
+                    type: "square"
+                    pose: [[1,1], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r20: "goto_r20" 
+                    r22: "goto_r22"
+                    r24: "goto_r24"
+                    r26: "goto_r26"
+            r24:
+                attr:
+                    type: "square"
+                    pose: [[2,1], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r21: "goto_r21" 
+                    r23: "goto_r23"
+                    r27: "goto_r27"
+            r25:
+                attr:
+                    type: "square"
+                    pose: [[0,2], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r22: "goto_r22" 
+                    r26: "goto_r26"
+                    r28: "goto_r28"
+            r26:
+                attr:
+                    type: "square"
+                    pose: [[1,2], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r23: "goto_r23" 
+                    r25: "goto_r25"
+                    r27: "goto_r27"
+                    r29: "goto_r29"
+            r27:
+                attr:
+                    type: "square"
+                    pose: [[2,2], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r24: "goto_r24" 
+                    r26: "goto_r26"
+                    r30: "goto_r30"
+            r28:
+                attr:
+                    type: "square"
+                    pose: [[0,3], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r25: "goto_r25" 
+                    r29: "goto_r29"
+                    r31: "goto_r31"
+            r29:
+                attr:
+                    type: "square"
+                    pose: [[1,3], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r26: "goto_r26" 
+                    r28: "goto_r28"
+                    r30: "goto_r30"
+                    r32: "goto_r32"
+            r30:
+                attr:
+                    type: "square"
+                    pose: [[2,3], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r27: "goto_r27" 
+                    r29: "goto_r29"
+                    r33: "goto_r33"
+            r31:
+                attr:
+                    type: "square"
+                    pose: [[0,4], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r28: "goto_r28" 
+                    r32: "goto_r32"
+                    r34: "goto_r34"
+            r32:
+                attr:
+                    type: "square"
+                    pose: [[1,4], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r29: "goto_r29" 
+                    r31: "goto_r31"
+                    r33: "goto_r33"
+                    r35: "goto_r35"
+            r33:
+                attr:
+                    type: "square"
+                    pose: [[2,4], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r30: "goto_r30" 
+                    r32: "goto_r32"
+                    r36: "goto_r36"
+            r34:
+                attr:
+                    type: "square"
+                    pose: [[0,5], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r31: "goto_r31" 
+                    r35: "goto_r35"
+            r35:
+                attr:
+                    type: "square"
+                    pose: [[1,5], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r32: "goto_r32" 
+                    r34: "goto_r34"
+                    r36: "goto_r36"
+            r36:
+                attr:
+                    type: "square"
+                    pose: [[2,5], [0]]
+                    length: 1
+                    hysteresis: 0.05
+                connected_to:
+                    r33: "goto_r33" 
+                    r35: "goto_r35"
+                    charging_station: "charge"
+            charging_station:
+                attr:
+                    type: "station"
+                    pose: [[2.5,5.5], [0]]
+                    radius: 0.1
+                    angle_threshold: 0.1
+                    dist_hysteresis: 0.03
+                    angle_hysteresis: 0.1
+                connected_to:
+                    r36: "goto_r36"
+    turtlebot_load:
+        ts_type: "turtlebot_load"
+        initial: "unloaded"
+        nodes:
+            unloaded:
+                connected_to:
+                    loaded: "pick"
+                    unloaded: "drop"
+            loaded:
+                connected_to:
+                    loaded: "pick"
+                    unloaded: "drop"
+
+actions:
+    goto_r19:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[0,0,0], [0,0,0,1]]
+    goto_r20:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[1,0,0], [0,0,0,1]]
+    goto_r21:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[2,0,0], [0,0,0,1]]
+    goto_r22:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[0,1,0], [0,0,0,1]]
+    goto_r23:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[1,1,0], [0,0,0,1]]
+    goto_r24:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[2,1,0], [0,0,0,1]]
+    goto_r25:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[0,2,0], [0,0,0,1]]
+    goto_r26:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[1,2,0], [0,0,0,1]]
+    goto_r27:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[2,2,0], [0,0,0,1]]
+    goto_r28:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[0,3,0], [0,0,0,1]]
+    goto_r29:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[1,3,0], [0,0,0,1]]
+    goto_r30:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[2,3,0], [0,0,0,1]]
+    goto_r31:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[0,4,0], [0,0,0,1]]
+    goto_r32:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[1,4,0], [0,0,0,1]]
+    goto_r33:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[2,4,0], [0,0,0,1]]
+    goto_r34:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[0,5,0], [0,0,0,1]]
+    goto_r35:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[1,5,0], [0,0,0,1]]
+    goto_r36:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[2,5,0], [0,0,0,1]]
+    charge:
+        type: "move"
+        weight: 10
+        guard: "1"
+        attr:
+            pose: [[2.5,5.5,0], [0,0,0,1]]
+    pick:
+        type: "turtlebot_pick"
+        weight: 10
+        guard: "r34"
+    drop:
+        type: "turtlebot_drop"
+        weight: 10
+        guard: "r21"
+             
+

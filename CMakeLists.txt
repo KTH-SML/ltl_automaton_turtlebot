@@ -8,7 +8,7 @@ project(ltl_automaton_turtlebot)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  ltl_autmaton_msgs
+  ltl_automaton_msgs
   ltl_automaton_std_transition_systems
 )
 
