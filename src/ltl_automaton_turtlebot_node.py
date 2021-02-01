@@ -46,10 +46,15 @@ class LTLController(object):
         self.ltl_state_msg = TransitionSystemStateStamped()
         self.ltl_state_msg.ts_state.state_dimension_names = self.transition_system["state_dim"]
 
+        # Init feedback variables
+        self.pick_feedback = False
+        self.drop_feedback = False
+
         # Initialize running time and index of command received and executed
         self.t0 = rospy.Time.now()
         self.t = self.t0
         self.plan_index = 0
+        self.next_action = {}
 
     #-------------------------------------------------------------------------
     # Create monitoring object for every state dimension in transition system
@@ -63,17 +68,18 @@ class LTLController(object):
 
         # Setup subscribers
         for i in range(number_of_dimensions):
-            print "checking dimension states"
+            print("checking dimension states")
             dimension = self.transition_system["state_dim"][i]
-            print dimension
+            print(dimension)
             if (dimension == "2d_pose_region"):
                 # Setup subscriber to 2D pose region monitor
                 self.turtlebot_region_sub = rospy.Subscriber("current_region", String, self.region_state_callback, i, queue_size=100)
             elif (dimension == "turtlebot_load"):
                 # Setup subscriber to turtlebot load state
-                self.turtlebot_load_sub = rospy.Subscriber("current_load_state", String, self.load_state_callback, i, queue_size=100)
+                self.turtlebot_load_state_id = i
+                self.curr_ltl_state[i] = "unloaded"
             else:
-                raise ValueError("state type [%s] is not supported by LTL turtlebot" % (dimension))
+                raise ValueError("state type [%s] is not supported by LTL Turtlebot" % (dimension))
 
     #----------------------------------
     # Setup subscribers and publishers
@@ -81,7 +87,7 @@ class LTLController(object):
     def set_pub_sub(self):
         # Setup navigation commands for turtlebot
         self.navigation = actionlib.SimpleActionClient("move_base", MoveBaseAction)
-        rospy.loginfo("LTL automaton turtlebot node: waiting for turtlebot move base action server...")
+        rospy.loginfo("LTL automaton Turtlebot node: waiting for turtlebot move base action server...")
         self.navigation.wait_for_server() # wait for action server to start
 
         # Setup LTL state publisher
@@ -90,7 +96,13 @@ class LTLController(object):
         # Setup subscriber to ltl_automaton_core next_move_cmd
         self.next_move_sub = rospy.Subscriber("next_move_cmd", std_msgs.msg.String, self.next_move_callback, queue_size=1)
 
-        rospy.loginfo("LTL automaton turtlebot node: initialized!")
+        # Setup assembly task (pick box) acknowkedge topic subscriber
+        self.pick_feedback_sub = rospy.Subscriber("pick_ack", std_msgs.msg.Bool, self.pick_feedback_callback)
+
+        # Setup delivery task acknowledge topic subscriber
+        self.drop_feedback_sub = rospy.Subscriber("drop_ack", std_msgs.msg.Bool, self.drop_feedback_callback)
+
+        rospy.loginfo("LTL automaton Turtlebot node: initialized!")
 
     #----------------------------------------
     # Handle message from load state monitor
@@ -103,6 +115,19 @@ class LTLController(object):
     #------------------------------------------
     def region_state_callback(self, msg, id):
         self.curr_ltl_state[id] = msg.data
+        print("received region "+str(self.curr_ltl_state[id]))
+
+    #---------------------------------
+    # Handle pick acknowledgement
+    #---------------------------------
+    def pick_feedback_callback(self, msg):
+        self.pick_feedback = msg.data
+
+    #--------------------------------------
+    # Handle drop acknowledgement
+    #--------------------------------------
+    def drop_feedback_callback(self, msg):
+        self.drop_feedback = msg.data
 
     #---------------------------------------
     # Handle next move command from planner
@@ -122,7 +147,7 @@ class LTLController(object):
         if cmd_str == "None":
 
             # To do: Handle when ltl_automaton_core encounteres state outside of TS (i.e. next_move_cmd = 'None')
-            rospy.logwarn('None next_move_cmd sent to LTL turtlebot')
+            rospy.logwarn('None next_move_cmd sent to LTL Turtlebot')
         else:
 
             # Check if next_move_cmd is in list of actions from transition_system
@@ -136,17 +161,34 @@ class LTLController(object):
 
             # Raise error if next_move_cmd does not exist in transition system
             if not(action_dict):
-                raise ValueError("next_move_cmd not found in LTL turtlebot transition system")
+                raise ValueError("next_move_cmd not found in LTL Turtlebot transition system")
+
+
+        # Reset feedbacks
+        self.pick_feedback = False
+        self.drop_feedback = False
 
         # Send action_dict to turtlebot_action()
-        self.turtlebot_action(action_dict)
+        self.next_action = action_dict
 
+    #----------------------
+    # Execute given action
+    #----------------------
     def turtlebot_action(self, act_dict):
         '''Read components of act_dict associated with current command and output control to turtlebot'''    
 
+        #--------------
+        # Move command
+        #--------------
         if act_dict['type'] == 'move':
             # Extract pose to move to:
             pose = act_dict['attr']['pose']
+            region = act_dict['attr']['region']
+
+            # Check if region is already occupied
+            if region in self.occupied_regions:
+                # Region is already occupied, wait before moving
+                return False
 
             # Set new navigation goal and send
             GoalMsg = MoveBaseGoal()
@@ -162,13 +204,43 @@ class LTLController(object):
             GoalMsg.target_pose.pose.orientation.w = pose[1][3]
             self.navigation.send_goal(GoalMsg)
 
-        #if act_dict['type'] == 'turtlebot_pick':
-            # TO DO
-            
+            return True
 
-        #if act_dict['type'] == 'turtlebot_drop':
-            # TO DO
+        #---------------------------
+        # Pick box at assembly line
+        #---------------------------
+        if act_dict['type'] == 'turtlebot_pick':
+            # Wait for acknowledgement of placed box on turtlebot
+            # return false until feedback as been received
+            if not self.pick_feedback:
+                return False
+            else:
+                # Reset feedback flag
+                self.pick_feedback = False
+                # Change state
+                self.curr_ltl_state[self.turtlebot_load_state_id] = "loaded"
+                print("PICK ACTION OK, CHANGE TO LOADED")
+                return True
 
+        #-----------------------
+        # Deliver full assembly
+        #-----------------------
+        if act_dict['type'] == 'turtlebot_drop':
+            # Wait for acknowledgement of drop action from turtlebot
+            # return false until feedback as been received
+            if not self.drop_feedback:
+                return False
+            else:
+                # Reset feedback flag
+                self.drop_feedback = False
+                # Change state
+                self.curr_ltl_state[self.turtlebot_load_state_id] = "unloaded"
+                print("DROP ACTION OK, CHANGE TO UNLOADED")
+                return True
+
+    #-----------
+    # Main loop
+    #-----------
     def main_loop(self):
         rate = rospy.Rate(50)
         while not rospy.is_shutdown():
@@ -183,7 +255,13 @@ class LTLController(object):
                     self.ltl_state_msg.header.stamp = rospy.Time.now()
                     self.ltl_state_msg.ts_state.states = self.curr_ltl_state
                     self.ltl_state_pub.publish(self.ltl_state_msg)
-                
+
+            # If waiting for obstacles or acknowledgement, check again
+            if self.next_action:
+                # If action returns true, action was carried out and is reset
+                if self.turtlebot_action(self.next_action):
+                    self.next_action = {}
+                    
             # rospy.loginfo("State is %s and prev state is %s" %(self.curr_ltl_state, self.prev_ltl_state))
             rate.sleep()    
 
@@ -196,6 +274,6 @@ if __name__ == '__main__':
         ltl_turtlebot = LTLController()
         rospy.spin()
     except ValueError as e:
-        rospy.logerr("LTL turtlebot node: %s" %(e))
+        rospy.logerr("LTL Turtlebot node: %s" %(e))
         sys.exit(0)
     
