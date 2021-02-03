@@ -185,11 +185,6 @@ class LTLController(object):
             pose = act_dict['attr']['pose']
             region = act_dict['attr']['region']
 
-            # Check if region is already occupied
-            if region in self.occupied_regions:
-                # Region is already occupied, wait before moving
-                return False
-
             # Set new navigation goal and send
             GoalMsg = MoveBaseGoal()
             GoalMsg.target_pose.header.seq = self.plan_index
