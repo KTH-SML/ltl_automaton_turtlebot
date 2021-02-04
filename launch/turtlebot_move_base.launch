@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="cmd_vel_topic" default="cmd_vel_mux/input/navi" />
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/planner.yaml" command="load"/>
+
+    <!-- common costmap attributes -->
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/costmap_common.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/costmap_common.yaml" command="load" ns="local_costmap" />
+
+    <!-- static local costmap -->
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/local_costmap_static.yaml" command="load" ns="local_costmap" />
+
+    <!-- static global costmap -->
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/global_costmap_static.yaml" command="load" ns="global_costmap"/>
+    
+    <!-- Global & local planners -->
+    <param name="base_global_planner" type="string" value="navfn/NavfnROS" />
+    <param name="planner_frequency" value="1.0" />
+    <param name="planner_patience" value="5.0" />
+
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <param name="controller_frequency" value="5.0" />
+    <param name="controller_patience" value="15.0" />
+
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)" />
+  </node>
+
+  <remap from="base_pose_ground_truth" to="/qualisys/turtlebot/odom" />
+  <node pkg="fake_localization" type="fake_localization" respawn="false" name="fake_localization" output="screen" />
+  
+
+</launch>
