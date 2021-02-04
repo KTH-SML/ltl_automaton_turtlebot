@@ -2,7 +2,7 @@
 <launch>
   <!-- Arguments -->
   <arg name="agent_name" default="turtlebot"/>
-  <arg name="initial_beta" default="1000.0"/>
+  <arg name="initial_beta" default="15.0"/>
   <arg name="gamma" default="10.0"/>
   <arg name="initial_ts_state_from_agent" default="True"/>
 
@@ -21,6 +21,17 @@
   <include file="$(find ltl_automaton_planner)/launch/ltl_planner.launch" >
     <arg name="initial_ts_state_from_agent" default="True"/>
   </include>
+  <group ns="ltl_planner/plugin">
+      <group ns="TrapDetectionPlugin">
+          <param name="path" value="ltl_automaton_hil_mic.trap_detection"/>
+          <param name="args" value=""/>
+      </group>
+      <group ns="IRLPlugin">
+          <param name="path" value="ltl_automaton_hil_mic.inverse_reinforcement_learning"/>
+          <param name="args" value=""/>
+      </group>  
+  </group>
+
 
   <!-- Run Turtlebot LTL node with the 2D pose region monitor-->
   <node name="ltl_automaton_turtlebot_node" pkg="ltl_automaton_turtlebot" type="ltl_automaton_turtlebot_node.py" output="screen" />
@@ -29,11 +40,23 @@
   </node>
 
   <!-- Turtlebot move base node -->
-  <include file="$(find ltl_automaton_turtlebot)/launch/turtlebot_move_base.launch" />
+  <group>
+    <include file="$(find ltl_automaton_turtlebot)/launch/turtlebot_move_base.launch" >
+      <arg name="cmd_vel_topic" value="nav_vel" />
+    </include>
+  </group>
   
+  <!-- Motion capture node for localization -->
   <include file="$(find mocap_qualisys)/launch/qualisys.launch" >
     <param name="publish_tf" value="false" />
   </include>
+
+  <!-- velocity command HIL MIC node -->
+  <remap from="cmd_vel" to="cmd_vel_mux/input/navi" />
+  <node name="hil_vel_cmd_mixer" pkg="ltl_automaton_hil_mic" type="vel_cmd_mix_initiative_controller.py" output="screen" >
+    <param name="ds" value="0.2"/>
+    <param name="epsilon" value="0.3" />
+  </node>
   
 
 </launch>
