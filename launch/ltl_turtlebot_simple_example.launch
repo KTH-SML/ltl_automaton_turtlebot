@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
   <!-- Arguments -->
-  <arg name="agent_name" default="turtlebot"/>
+  <arg name="agent_name" default="mobile_base"/>
   <arg name="initial_beta" default="15.0"/>
   <arg name="gamma" default="10.0"/>
   <arg name="initial_ts_state_from_agent" default="True"/>
@@ -46,10 +46,10 @@
     </include>
   </group>
   
-  <!-- Motion capture node for localization -->
+  <!-- Motion capture node for localization
   <include file="$(find mocap_qualisys)/launch/qualisys.launch" >
     <param name="publish_tf" value="false" />
-  </include>
+  </include> -->
 
   <!-- velocity command HIL MIC node -->
   <remap from="cmd_vel" to="cmd_vel_mux/input/navi" />
