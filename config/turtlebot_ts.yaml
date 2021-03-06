@@ -193,7 +193,7 @@ state_models:
                 connected_to:
                     r33: "goto_r33" 
                     r35: "goto_r35"
-                    charging_station: "charge"
+                    charging_station: "goto_charging_station"
             charging_station:
                 attr:
                     type: "station"
@@ -223,7 +223,8 @@ state_models:
             charged:
                 connected_to: {}
             uncharged:
-                connected_to: {}
+                connected_to:
+                    charged: "charge"
 actions:
     goto_r19:
         type: "move"
@@ -333,7 +334,7 @@ actions:
         guard: "1"
         attr:
             pose: [[2,5,0], [0,0,0,1]]
-    charge:
+    goto_charging_station:
         type: "move"
         weight: 10
         guard: "1"
@@ -347,5 +348,9 @@ actions:
         type: "turtlebot_drop"
         weight: 10
         guard: "r21"
+    charge:
+        type: "battery_charge"
+        weight: 10
+        guard: "charging_station"
              
 
