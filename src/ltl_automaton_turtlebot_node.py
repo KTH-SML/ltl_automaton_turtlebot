@@ -65,7 +65,7 @@ class LTLController(object):
 
         # Init LTL state variables
         self.curr_ltl_state = [None for element in range(number_of_dimensions)]
-        self.prev_ltl_state = deepcopy(self.curr_ltl_state)9
+        self.prev_ltl_state = deepcopy(self.curr_ltl_state)
 
 
         # Setup subscribers

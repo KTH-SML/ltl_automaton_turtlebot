@@ -11,7 +11,7 @@ state_dim: ["2d_pose_region", "turtlebot_load", "battery_charge"]
 state_models:
     2d_pose_region:
         ts_type: "2d_pose_region"
-        initial: "r36"
+        initial: "r19"
         nodes: 
             r19:
                 attr:
@@ -193,8 +193,8 @@ state_models:
                 connected_to:
                     r33: "goto_r33" 
                     r35: "goto_r35"
-                    charging_station: "goto_charging_station"
-            charging_station:
+                    s1: "goto_s1"
+            s1:
                 attr:
                     type: "station"
                     pose: [[2.5,5.5], [0]]
@@ -218,7 +218,7 @@ state_models:
                     unloaded: "drop"
     battery_charge:
         ts_type: "battery_charge"
-        initial: "charged"
+        initial: "uncharged"
         nodes:
             charged:
                 connected_to: {}
@@ -334,7 +334,7 @@ actions:
         guard: "1"
         attr:
             pose: [[2,5,0], [0,0,0,1]]
-    goto_charging_station:
+    goto_s1:
         type: "move"
         weight: 10
         guard: "1"
@@ -343,14 +343,14 @@ actions:
     pick:
         type: "turtlebot_pick"
         weight: 10
-        guard: "r34"
+        guard: "r34 || charged"
     drop:
         type: "turtlebot_drop"
         weight: 10
-        guard: "r21"
+        guard: "r21 || charged"
     charge:
         type: "battery_charge"
         weight: 10
-        guard: "charging_station"
+        guard: "s1 || loaded"
              
 
