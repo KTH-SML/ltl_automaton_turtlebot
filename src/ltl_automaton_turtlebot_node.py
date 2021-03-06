@@ -93,6 +93,9 @@ class LTLController(object):
         self.navigation = actionlib.SimpleActionClient("move_base", MoveBaseAction)
         rospy.loginfo("LTL automaton Turtlebot node: waiting for turtlebot move base action server...")
         self.navigation.wait_for_server() # wait for action server to start
+        
+        # Station access request publisher
+        self.station_access_request_pub = rospy.Publisher("station_access_request", std_msgs.msg.String, latch=True, queue_size=1)
 
         # Setup LTL state publisher
         self.ltl_state_pub = rospy.Publisher("ts_state", TransitionSystemStateStamped, latch=True, queue_size=10)
@@ -188,11 +191,13 @@ class LTLController(object):
             # Extract pose to move to:
             pose = act_dict['attr']['pose']
             region = act_dict['attr']['region']
+            
+            # If next region is a station, request access, otherwise empty station request
+            station_access_req = std_msgs.msg.String()
+            if self.transition_system['state_models']['2d_pose_region']['nodes'][region]['attr']['type'] == "station":
+                station_access_req.data = region
+            self.station_access_request_pub.publish(station_access_req)
 
-            # Check if region is already occupied
-            if region in self.occupied_regions:
-                # Region is already occupied, wait before moving
-                return False
 
             # Set new navigation goal and send
             GoalMsg = MoveBaseGoal()
