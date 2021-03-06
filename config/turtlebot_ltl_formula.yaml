@@ -1,2 +1,2 @@
-hard_task: "([]<> (charging_station)) && [](package_arrived -> (<> loaded)) && [](loaded -> <> unloaded) && [](!r23 && !r29)"
+hard_task: "([] (uncharged -> <> charged)) && ([] <> loaded) && [](loaded -> <> unloaded) && [](!r23 && !r29)"
 soft_task: ""

@@ -13,6 +13,7 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import String, Bool
+from kobuki_msgs.msg import SensorState
 
 #=================================================================
 #  Interfaces between LTL planner node and lower level controls
@@ -79,8 +80,9 @@ class LTLController(object):
                 # Setup subscriber to turtlebot load state
                 self.turtlebot_load_state_id = i
                 self.curr_ltl_state[i] = "unloaded"
-            # elif (dimension == "battery_charge"):
+            elif (dimension == "battery_charge"):
                 # set up subscriber to turtlebot charge state
+                self.turtlebot_kobuki_sensors_sub = rospy.Subscriber("mobile_base/sensors/core", SensorState, self.kobuki_sensors_callback, i, queue_size=100)
 
             else:
                 raise ValueError("state type [%s] is not supported by LTL Turtlebot" % (dimension))
@@ -135,6 +137,18 @@ class LTLController(object):
     #--------------------------------------
     def drop_feedback_callback(self, msg):
         self.drop_feedback = msg.data
+
+    #--------------------------------------
+    # Handle drop acknowledgement
+    #--------------------------------------
+    def kobuki_sensors_callback(self, msg, id):
+        # extract battery
+        batteryLevel = msg.battery
+        if batteryLevel <= 100:
+            self.curr_ltl_state[id]= "uncharged"
+
+        if batteryLevel >= 170:
+            self.curr_ltl_state[id] = "charged"
 
     #---------------------------------------
     # Handle next move command from planner
