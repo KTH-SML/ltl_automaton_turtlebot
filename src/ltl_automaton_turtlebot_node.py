@@ -64,7 +64,8 @@ class LTLController(object):
 
         # Init LTL state variables
         self.curr_ltl_state = [None for element in range(number_of_dimensions)]
-        self.prev_ltl_state = deepcopy(self.curr_ltl_state)
+        self.prev_ltl_state = deepcopy(self.curr_ltl_state)9
+
 
         # Setup subscribers
         for i in range(number_of_dimensions):
@@ -78,6 +79,9 @@ class LTLController(object):
                 # Setup subscriber to turtlebot load state
                 self.turtlebot_load_state_id = i
                 self.curr_ltl_state[i] = "unloaded"
+            # elif (dimension == "battery_charge"):
+                # set up subscriber to turtlebot charge state
+
             else:
                 raise ValueError("state type [%s] is not supported by LTL Turtlebot" % (dimension))
 
