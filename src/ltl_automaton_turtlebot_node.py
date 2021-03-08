@@ -83,7 +83,7 @@ class LTLController(object):
             elif (dimension == "battery_charge"):
                 # set up subscriber to turtlebot charge state
                 self.turtlebot_kobuki_sensors_sub = rospy.Subscriber("mobile_base/sensors/core", SensorState, self.kobuki_sensors_callback, i, queue_size=100)
-
+		self.curr_ltl_state[i] = "charged"
             else:
                 raise ValueError("state type [%s] is not supported by LTL Turtlebot" % (dimension))
 
@@ -144,10 +144,10 @@ class LTLController(object):
     def kobuki_sensors_callback(self, msg, id):
         # extract battery
         batteryLevel = msg.battery
-        if batteryLevel <= 100:
+        if batteryLevel <= 159:
             self.curr_ltl_state[id]= "uncharged"
 
-        if batteryLevel >= 170:
+        if batteryLevel >= 165:
             self.curr_ltl_state[id] = "charged"
 
     #---------------------------------------

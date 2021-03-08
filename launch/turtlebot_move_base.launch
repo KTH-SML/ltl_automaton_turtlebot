@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="agent_name" default="turtlebot" />
   <arg name="cmd_vel_topic" default="cmd_vel_mux/input/navi" />
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/planner.yaml" command="load"/>
@@ -26,7 +27,7 @@
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)" />
   </node>
 
-  <remap from="base_pose_ground_truth" to="/qualisys/mobile_base/odom" />
+  <remap from="base_pose_ground_truth" to="/qualisys/$(arg agent_name)/odom" />
   <node pkg="fake_localization" type="fake_localization" respawn="false" name="fake_localization" output="screen" />
   
 
