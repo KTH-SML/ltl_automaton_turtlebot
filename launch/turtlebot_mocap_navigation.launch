@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="agent_name" default="turtlebot" />
+  <arg name="run_mocap" default="false" />
+  <arg name="odom_frame_id"   default="odom"/>
+  <arg name="base_frame_id"   default="base_footprint"/>
+  <arg name="global_frame_id" default="map"/>
+
+  <group if="$(arg run_mocap)">
+    <!-- Motion capture node for localization -->
+    <include file="$(find mocap_qualisys)/launch/qualisys.launch" >
+      <param name="publish_tf" value="false" />
+    </include>
+  </group>
+
+  <arg name="cmd_vel_topic" default="cmd_vel_mux/input/navi" />
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/planner.yaml" command="load"/>
+
+    <!-- common costmap attributes -->
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/costmap_common.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/costmap_common.yaml" command="load" ns="local_costmap" />
+
+    <!-- static local costmap -->
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/local_costmap_static.yaml" command="load" ns="local_costmap" />
+
+    <!-- static global costmap -->
+    <rosparam file="$(find ltl_automaton_turtlebot)/config/navigation/global_costmap_static.yaml" command="load" ns="global_costmap"/>
+    
+    <!-- Global & local planners -->
+    <param name="base_global_planner" type="string" value="navfn/NavfnROS" />
+    <param name="planner_frequency" value="1.0" />
+    <param name="planner_patience" value="5.0" />
+
+    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <param name="controller_frequency" value="5.0" />
+    <param name="controller_patience" value="15.0" />
+
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)" />
+  </node>
+
+  <!-- Generates transform from map to odom frame using pose from mocap -->
+  <remap from="base_pose_ground_truth" to="/qualisys/$(arg agent_name)/odom" />
+  <node pkg="fake_localization" type="fake_localization" respawn="false" name="mocap_localization" output="screen">
+    <param name="odom_frame_id" value="$(arg odom_frame_id)"/>
+    <param name="base_frame_id" value="$(arg base_frame_id)"/>
+    <param name="global_frame_id" value="$(arg global_frame_id)"/>
+  </node>  
+
+</launch>
