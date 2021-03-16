@@ -111,4 +111,47 @@ The robot transition system needs to be a combination of at least one of the fol
     - `agent_name` Agent name. Default: `turtlebot`.
     - `cmd_vel_topic` Topic to send the velocity command to. Default: `cmd_vel_mux/input/navi`
 
+## Nodes
+### ltl_automaton_turtlebot_node.py 
+LTL Turtlebot node, execute the action sent by the LTL planner and returns the aggregated TS state from the state monitors. The turtlebot load state monitor is integrated within the LTL Turtlebot node and switching state in automatically done after completed the relevant action. The battery charge monitor is integrated within the LTL Turtlebot node and change states only based on the battery level (not the charge action).
 
+#### Actions
+*Action published topics*
+- `move_base/goal` ([move_base_msgs/MoveBaseActionGoal](http://docs.ros.org/en/api/move_base_msgs/html/msg/MoveBaseActionGoal.html))
+    
+    Send pose command to reach region when executing the action `goto_<region>`.
+    
+#### Subscribed Topics
+- `next_move_cmd` ([std_msgs/String](http://docs.ros.org/en/noetic/api/std_msgs/html/msg/String.html))
+
+    Next move from the output word (action sequence) to be carried out by the agent in order to satisfy the plan.
+    
+- `current_region` ([std_msgs/String](http://docs.ros.org/en/noetic/api/std_msgs/html/msg/String.html))
+
+    Agent region from the transition system state model `2d_pose_region`.
+    
+- `pick_ack` ([std_msgs/Bool](http://docs.ros.org/en/noetic/api/std_msgs/html/msg/Bool.html))
+
+    Feedback for the action `pick`. The action is considered completed when an acknowledgement message is received on this topic.
+
+- `drop_ack` ([std_msgs/Bool](http://docs.ros.org/en/noetic/api/std_msgs/html/msg/Bool.html))
+
+    Feedback for the action `drop`. The action is considered completed when an acknowledgement message is received on this topic.
+
+- `mobile_base/sensors/core` ([kuboki_msgs/SensorState](https://docs.ros.org/en/hydro/api/kobuki_msgs/html/msg/SensorState.html))
+
+   Battery level is monitored from this topic and used to change the battery level state.
+    
+#### Published Topics
+- `ts_state` ([ltl_automaton_msgs/TransitionSystemStateStamped](/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg))
+
+    Agent TS state topic. The agent TS state is composed of a list of states from the different state models composing the action model. The Nexus node aggretates the `2d_pose_region` state from a region_2d_pose_monitor with the internal load state.
+    
+#### Parameters
+- `agent_name` (string, default: "agent")
+
+    Agent name.
+    
+- `transition_system_textfile` (string)
+
+    Action model transition system definition.
