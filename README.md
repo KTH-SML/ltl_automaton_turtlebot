@@ -145,7 +145,7 @@ LTL Turtlebot node, execute the action sent by the LTL planner and returns the a
 #### Published Topics
 - `ts_state` ([ltl_automaton_msgs/TransitionSystemStateStamped](/ltl_automaton_msgs/msg/TransitionSystemStateStamped.msg))
 
-    Agent TS state topic. The agent TS state is composed of a list of states from the different state models composing the action model. The Nexus node aggretates the `2d_pose_region` state from a region_2d_pose_monitor with the internal load state.
+    Agent TS state topic. The agent TS state is composed of a list of states from the different state models composing the action model. The turtlebot node aggretates the `2d_pose_region` state from a region_2d_pose_monitor with the internal load state.
     
 #### Parameters
 - `agent_name` (string, default: "agent")
