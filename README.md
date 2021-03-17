@@ -28,7 +28,7 @@ Provides integration of Turtlebot2 with LTL automaton package
 	- For Python3 (ROS Morenia):
 	`pip3 install pyyaml`
   
-  ### Building
+### Building
 To build the package, clone the current repository in your catkin workspace and build it.
 ```
 cd catkin_ws/src
@@ -43,13 +43,13 @@ catkin_make
 ## Usage
 The package provides the agent-level code needed for interacting with the turtlebot.
 
-To launch the planner and LTL nexus node, simply run the following command. Please notice that a move_base node and low-level nodes need to be running for the turtlebot to receive the velocity commands.
+To launch the planner and LTL nexus node, simply run the following command. Please note that a move_base node and low-level nodes need to be running for the turtlebot to receive the velocity commands.
 
 ```
 roslaunch ltl_automaton_turtlebot ltl_turtlebot.launch
 ```
 
-This will run the planner using the task specification in `config/nexus_ltl_formula.yaml` and transition system in `config/turtlebot_ts.yaml`.
+This will run the planner using the task specification in `config/turtlebot_ltl_formula.yaml` and transition system in `config/turtlebot_ts.yaml`.
 
 A move base node relying on mocap for localization can be launched using
 
